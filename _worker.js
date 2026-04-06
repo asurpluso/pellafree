@@ -203,6 +203,7 @@ async function processAccountRenew(account) {
     let hasSuccess = false;
     let hasFail = false;
     let claimedCount = 0;
+    let successCount = 0;
     const failMessages = [];
 
     for (let i = 0; i < linksToTry.length; i++) {
@@ -216,7 +217,8 @@ async function processAccountRenew(account) {
 
         if (result.success) {
           hasSuccess = true;
-          break;
+          successCount++;
+          // 不再 break，继续尝试剩余链接
         } else if (result.alreadyClaimed) {
           claimedCount++;
         } else {
@@ -232,7 +234,7 @@ async function processAccountRenew(account) {
     }
 
     if (hasSuccess) {
-      renewResults.push({ serverId: server.id, status: 'success', message: '续期成功' });
+      renewResults.push({ serverId: server.id, status: 'success', message: `续期成功(${successCount}/${linksToTry.length})` });
     } else if (claimedCount === linksToTry.length) {
       renewResults.push({ serverId: server.id, status: 'claimed', message: '广告冷却中' });
     } else if (claimedCount > 0 && !hasFail) {
